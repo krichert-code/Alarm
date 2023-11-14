@@ -11,9 +11,10 @@
 #include "SensorEventsDatabase.h"
 
 
-int  Scheduler::schedulerThreadFunction()
+int  Scheduler::schedulerThreadFunction(SensorType sensorType)
 {
 	int tenthOfmilisec = 0;
+	int scanningTime = 0;
 	DevicesRegister devRegister;
 	shared_ptr<DeviceInfoInterface> deviceConfiguration = DevicesConfiguration::getInstance();
 	vector<int> devicesId;
@@ -25,26 +26,34 @@ int  Scheduler::schedulerThreadFunction()
 
 	// setup consumers of readings
 	for (auto &deviceId : devicesId)
+	{
+		if (sensorType != any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).sensorType)
+				continue;
+
 		for (auto &source : readingSources)
 			source->prepareDeviceInfoSetup(deviceId, devRegister.getRegisteredDevice(deviceId));
-
+	}
 
 	//start to read sensors
 	while(1)
 	{
-
 		for (auto &deviceId : devicesId)
 		{
+			if (sensorType != any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).sensorType)
+				continue;
+			
 			try
 			{
 				scanningPeriod = any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).scanningPeriod;
 			}
 			catch(bad_any_cast &e)
 			{
+				scanningPeriod = 1;
 				//todo:wrong reading - log it
 			}
 
-			if (0 == (tenthOfmilisec % scanningPeriod))
+			//if (0 == (tenthOfmilisec % scanningPeriod))
+			if (0 == (scanningTime % scanningPeriod))
 			{
 				reading = readingSources[0]->getData(deviceId);
 
@@ -63,16 +72,19 @@ int  Scheduler::schedulerThreadFunction()
 					source->setData(deviceId, reading);
 			}
 		}
-		this_thread::sleep_for(chrono::milliseconds(scanningTimer));
-		tenthOfmilisec = (tenthOfmilisec % 10);
-		tenthOfmilisec++;
+	
+		// this_thread::sleep_for(chrono::milliseconds(scanningTimer));
+		// tenthOfmilisec = (tenthOfmilisec % 10);
+		// tenthOfmilisec++;
+		this_thread::sleep_for(chrono::milliseconds(1000));		
+		scanningTime++;
 	}
 
 	return STATUS_OK;
 }
 
-void Scheduler::operator ()(int x)
+void Scheduler::operator ()(int sensorType)
 {
-	schedulerThreadFunction();
-	cout << "Scheduler : end thread" << x << endl;
+	schedulerThreadFunction(static_cast<SensorType>(sensorType));
+	cout << "Scheduler : end thread" << sensorType << endl;
 }

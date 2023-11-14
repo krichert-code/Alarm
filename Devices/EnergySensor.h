@@ -23,23 +23,9 @@ class EnergySensor : public DeviceInterface
 
     public:
 		EnergySensor(string address);
-		string getDeviceAddress() { return deviceAddress;}
-		void setNewReading(SensorReading reading);
+		string getDeviceAddress() { return deviceAddress;}		
+		static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
 		SensorReading getDeviceReading() override;
 		virtual ~EnergySensor() {}
 };
-
-
-class EnergyReadingThread
-{
-	private:
-		EnergySensor *energySensor;
-
-	public:
-		static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
-		EnergyReadingThread(EnergySensor *sensor) : energySensor(sensor) {}
-		void operator()(int param);
-};
-
-

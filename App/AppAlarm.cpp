@@ -4,9 +4,9 @@
 using namespace std;
 
 
-int main()
+int main(int argc, char *argv[])
 {
-    Initializer::getInstance()->init();
+    Initializer::getInstance()->init(argc, argv);
     Initializer::getInstance()->begin();
     return 0;
 }

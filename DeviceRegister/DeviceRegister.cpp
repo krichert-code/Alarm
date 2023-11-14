@@ -9,6 +9,7 @@
 #include "TempSensor.h"
 #include "AlarmSensor.h"
 #include "EnergySensor.h"
+#include "CamSensor.h"
 #include "StateSensor.h"
 #include "SwitchSensor.h"
 #include "DevicesConfiguration.h"
@@ -71,5 +72,6 @@ array<function<shared_ptr<DeviceInterface>(string)>, DevicesRegister::deviceType
 		[](string address)->shared_ptr<DeviceInterface> { return make_shared<EnergySensor>(address); },
 		[](string address)->shared_ptr<DeviceInterface> { return make_shared<StateSensor>(address); },
 		[](string address)->shared_ptr<DeviceInterface> { return make_shared<SwitchSensor>(address); },
+		[](string address)->shared_ptr<DeviceInterface> { return make_shared<CamSensor>(address); },
 		[](string address)->shared_ptr<DeviceInterface> { return make_shared<AlarmSensor>(address); }
 };

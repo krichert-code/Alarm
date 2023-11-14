@@ -135,16 +135,16 @@ Status AlarmService::setData(const int deviceId, DeviceInfoData data)
 
 		reading.sensorName = configData.sensorName;
 
-		if((readingData.status == STATUS_OK) && (converter.ConvertReadingToAlarm(readingData, configData.enableThresholdValue)))
-		//if((readingData.status == STATUS_OK) && (readingData.lastReadingValue > configData.enableThresholdValue))
+		if((readingData.status == STATUS_OK) && (converter.ConvertReadingToAlarm(readingData, configData.enableThresholdValue)))		
 		{
-			cout << "SensorId ( " << configData.sensorName << ") = " << deviceId << " Value =" <<  readingData.lastReadingValue << " threshold = " <<  configData.enableThresholdValue << endl;
+			// todo : enableAlarm doesn't work correctly - separat thread is not good idea
+			//cout << "[AlarmService] SensorId(" << configData.sensorName << ") = " << deviceId << " Value = " <<  readingData.lastReadingValue << " threshold = " <<  configData.enableThresholdValue << endl;
 
 			reading.isActivate = true;
 			reading.status = STATUS_OK;
 			this->alerts[deviceId] = reading;
 
-			enableAlarm();
+			// enableAlarm();
 		}
 		else if (readingData.status == STATUS_OK)
 		{

@@ -97,7 +97,7 @@ xmlResponse DeviceInfoRegister::getPresenceDeviceInfo()
 		readingEntry = any_cast<DatabaseReadingEntry>(deviceInfoSource[1]->getData(sensorIdx));
 		sensorParam = any_cast<SensorParameters>(deviceInfoSource[0]->getData(sensorIdx));
 
-		if((STATUS_OK == readingEntry.reading.status) && (sensorParam.sensorType == MOVE_SENSOR))
+		if((STATUS_OK == readingEntry.reading.status) && ((sensorParam.sensorType == MOVE_SENSOR) || (sensorParam.sensorType == CAMERA_SENSOR)))
 		{
 		    result[sensorIdx].insert(pair<string, string>("sensorName", sensorParam.sensorName));
 		    result[sensorIdx].insert(pair<string, string>("sensorId", to_string(sensorIdx)));
@@ -106,7 +106,6 @@ xmlResponse DeviceInfoRegister::getPresenceDeviceInfo()
 		sensorIdx++;
 	}
 	while (readingEntry.reading.status != STATUS_XML_NO_MORE_SENSORS);
-
 
 	return result;
 }
@@ -126,22 +125,12 @@ xmlResponse DeviceInfoRegister::getTemperatureDeviceInfo()
 		sensorParam = any_cast<SensorParameters>(deviceInfoSource[0]->getData(sensorIdx));
 
 		if(TEMP_SENSOR == sensorParam.sensorType)
-		{/*
-			map<string,string> elements;
-			elements.clear();
-			elements.insert(pair<string, string>("sensorName", sensorParam.sensorName));
-			elements.insert(pair<string, string>("Temperature", converter.ConvertReadingToString(readingEntry.reading)));
-			result[sensorIdx] = elements;
-*/
+		{
 			result[sensorIdx].insert(pair<string, string>("sensorId", to_string(sensorIdx)));
 			result[sensorIdx].insert(pair<string, string>("temperature", converter.ConvertReadingToString(readingEntry.reading)));
 			result[sensorIdx].insert(pair<string, string>("thresholdExceeded", converter.ConvertReadingToString(readingEntry.isSensorGeneratingAlarm)));
 			result[sensorIdx].insert(pair<string, string>("sensorName", sensorParam.sensorName));
 			result[sensorIdx].insert(pair<string, string>("status", converter.ConvertStatusToString(readingEntry.reading)));
-
-
-//			result["sensorId_" + to_string(sensorIdx) + "_Name"] = sensorParam.sensorName;
-//			result["sensorId_" + to_string(sensorIdx) + "_Temp"] = converter.ConvertReadingToString(readingEntry.reading);
 		}
 		sensorIdx++;
 	}

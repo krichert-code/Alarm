@@ -27,7 +27,7 @@ class Scheduler
 	private:
 		static constexpr int maxSources = 2;
 		array<shared_ptr<DeviceSetupInterface>,maxSources> readingSources;
-		int  schedulerThreadFunction();
+		int  schedulerThreadFunction(SensorType sensorType);
 		const int scanningTimer = 100;
 
 	public:
@@ -38,7 +38,7 @@ class Scheduler
 				}
 		){}
 
-		void operator()(int x);
+		void operator()(int sensorType);
 };
 
 #endif /* SCHEDULER_H_ */

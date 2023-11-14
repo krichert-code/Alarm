@@ -48,6 +48,7 @@ typedef enum SensorType
     ENERGY_SENSOR,
     STATE_SENSOR,
 	SWITCH_SENSOR,
+    CAMERA_SENSOR,
     ALARM_SENSOR,
     SENSOR_MAX
 } SensorType;

@@ -20,12 +20,13 @@ class Initializer
     private:
 		static mutex synch;
 		static Initializer *initializerInstance;
+		string port;
 
 		Initializer();
     public:
 
 		static Initializer * getInstance();
-		void init();
+		void init(int argc, char *params[]);
 		void begin();
 };
 

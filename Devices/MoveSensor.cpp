@@ -23,12 +23,12 @@ SensorReading MoveSensor::getDeviceReading()
 {
 	SensorReading reading;
 
-
 	reading.readingType = this->readingType;
 	reading.lastReadingValue = digitalRead(deviceAddress);
 	reading.status = STATUS_OK;
 
-	//cout << "MOVE SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
+	// cout << "MOVE SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;	
+
 	return reading;
 }
 

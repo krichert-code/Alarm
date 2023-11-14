@@ -23,19 +23,30 @@ Initializer * Initializer::getInstance()
 	return initializerInstance;
 }
 
-void Initializer::init()
+void Initializer::init(int argc, char *params[])
 {
+	port = "*:9080";
 	//todo:read input parameters ./alarm port=80 configile="Alarm.xml"
 	// parse input parameters (Alarm httpPort=80 configFile=Alarm.xml)
+	if (argc > 1)
+	{
+		string port_number(params[1]);		
+		port = "*:" + port_number;		
+	}
 }
 
 void Initializer::begin()
 {
-	// starts all threads
-	thread schedulerThread(Scheduler(), 3);
-	Pistache::Http::listenAndServe<RestApiService>(static_cast<Pistache::Address>("*:9080"));
+	// starts all threads	
+	thread sensorsThread[SENSOR_MAX];
 
-	schedulerThread.join();
+	for (auto sensorType=0; sensorType<SENSOR_MAX; sensorType++)
+    	sensorsThread[sensorType] = thread(Scheduler(), sensorType);
+
+	Pistache::Http::listenAndServe<RestApiService>(static_cast<Pistache::Address>(port));
+
+	for (auto sensorType=0; sensorType<SENSOR_MAX; sensorType++)
+		sensorsThread[sensorType].join();
 }
 
 

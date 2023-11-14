@@ -48,7 +48,7 @@ void SensorEventsDatabase::prepareDeviceInfoSetup(const int deviceId, const shar
 	synch.lock();
 
 	//initialize sensors reading data
-	data.reading = device->getDeviceReading();
+	data.reading.status = STATUS_READING_NOT_READY;
 	data.isSensorGeneratingAlarm = false;
 	data.setupDeviceWithNewReadingValue = false;
 	lastSensorsEvents[deviceId] = data;
@@ -131,10 +131,10 @@ Status SensorEventsDatabase::setData(const int deviceId, DeviceInfoData data)
 
 SensorEventsDatabase::SensorEventsDatabase()
 {
+	lastDeviceIdx = -1;
 	deviceConfiguration = DevicesConfiguration::getInstance();
 	try
-	{
-		timeOfPresenceSec = 0;
+	{		
 		timeOfPresenceSec = stoi(deviceConfiguration->getSettingValue("timeOfPresenceSec").value);
 	}
 	catch (invalid_argument& e)
