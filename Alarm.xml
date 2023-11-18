@@ -49,8 +49,9 @@
     <sensor name="TempOgrod" sensorType="1" threshold="60" scanningPeriod="10"    address="28-00000e0a9d04" enabled="1"/>
 
 <!- Energy generator -->
-    <sensor name="PowerToday" sensorType="2" threshold="45" scanningPeriod="60" address="today" enabled="1"/>
-    <sensor name="PowerTotal" sensorType="2" threshold="5500" scanningPeriod="60" address="total" enabled="1"/>
-    <sensor name="PowerCurrent" sensorType="2" threshold="5250" scanningPeriod="60" address="current" enabled="1"/>
+    <sensor name="PowerToday" sensorType="2" threshold="45" scanningPeriod="60" address="webdata_today_e@http://192.168.1.140/status.html" enabled="1"/>
+    <sensor name="PowerTotal" sensorType="2" threshold="5500" scanningPeriod="60" address="webdata_total_e@http://192.168.1.140/status.html" enabled="1"/>
+    <sensor name="PowerCurrent" sensorType="2" threshold="5250" scanningPeriod="60" address="webdata_now_p@http://192.168.1.140/status.html" enabled="1"/>
+
 
 </sensors>

@@ -49,6 +49,7 @@ void SensorEventsDatabase::prepareDeviceInfoSetup(const int deviceId, const shar
 
 	//initialize sensors reading data
 	data.reading.status = STATUS_READING_NOT_READY;
+	data.reading.lastReadingValue = 0;
 	data.isSensorGeneratingAlarm = false;
 	data.setupDeviceWithNewReadingValue = false;
 	lastSensorsEvents[deviceId] = data;
@@ -87,9 +88,10 @@ Status SensorEventsDatabase::setData(const int deviceId, DeviceInfoData data)
 
 	try
 	{
-		if (lastSensorsEvents[deviceId].reading.status == STATUS_OK)
+		if ((lastSensorsEvents[deviceId].reading.status == STATUS_OK) && (any_cast<SensorReading>(data).status == STATUS_OK))
 		{
-			auto thresholdExceded = reading.ConvertReadingToAlarm(any_cast<SensorReading>(data), any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).enableThresholdValue);
+			auto thresholdExceded = reading.ConvertReadingToAlarm(any_cast<SensorReading>(data), 
+										any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).enableThresholdValue);
 			if( true == thresholdExceded )
 			{
 				if (false == lastSensorsEvents[deviceId].isValidExecedTimeStamp)
@@ -114,10 +116,16 @@ Status SensorEventsDatabase::setData(const int deviceId, DeviceInfoData data)
 				lastDeviceIdx = deviceId;
 			}
 		}
-		else
+		else if (any_cast<SensorReading>(data).status == STATUS_OK)
 		{
 			lastSensorsEvents[deviceId].readingTimestamp = timeStamp;
 			lastSensorsEvents[deviceId].reading = any_cast<SensorReading>(data);
+		}
+		else
+		{
+			// preserve last valid reading
+			lastSensorsEvents[deviceId].reading.status = any_cast<SensorReading>(data).status;
+			lastSensorsEvents[deviceId].reading.readingType = any_cast<SensorReading>(data).readingType;
 		}
 	}
 	catch(bad_any_cast &e)

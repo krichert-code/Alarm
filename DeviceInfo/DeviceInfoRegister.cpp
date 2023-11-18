@@ -156,9 +156,8 @@ xmlResponse DeviceInfoRegister::getEnergyDeviceInfo()
 		if(ENERGY_SENSOR == sensorParam.sensorType)
 		{
 			result[sensorIdx].insert(pair<string, string>("sensorId", to_string(sensorIdx)));
-			result[sensorIdx].insert(pair<string, string>("power", converter.ConvertReadingToString(readingEntry.reading)));
 			result[sensorIdx].insert(pair<string, string>("sensorName", sensorParam.sensorName));
-			result[sensorIdx].insert(pair<string, string>("type", sensorParam.sensorAddress));
+			result[sensorIdx].insert(pair<string, string>("power", converter.ConvertReadingToString(readingEntry.reading)));
 			result[sensorIdx].insert(pair<string, string>("status", converter.ConvertStatusToString(readingEntry.reading)));
 		}
 		sensorIdx++;
