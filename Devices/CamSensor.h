@@ -19,12 +19,14 @@ class CamSensor : public DeviceInterface
 	private:
 		string deviceAddress;
 		ReadingType readingType;
-
+		static bool streamAvailable;
 
 	public:
 		CamSensor(string address);
 		virtual ~CamSensor() {}
 		SensorReading getDeviceReading() override;
+		static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+		static size_t HeaderCallback(void *contents, size_t size, size_t nmemb, void *userp);
 };
 
 
