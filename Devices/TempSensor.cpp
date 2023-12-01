@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <stdlib.h>
 
 SensorReading TempSensor::getDeviceReading()
 {
@@ -25,7 +26,10 @@ SensorReading TempSensor::getDeviceReading()
 		if (data.find(crc_ok) != string::npos){
 			reading.readingType = READING_FIXED_INT;
 			int readingValue = stoi(data.substr(data.find(data_pattern) + data_pattern.length()));
-			reading.lastReadingValue = (readingValue / 1000) << 12 | (readingValue - ((static_cast<int>(readingValue / 1000)) * 1000));
+			if (readingValue >= 0)
+				reading.lastReadingValue = (readingValue / 1000) << 12 | (readingValue - ((static_cast<int>(readingValue / 1000)) * 1000));
+			else
+				reading.lastReadingValue = (readingValue / 1000) << 12 | (abs(readingValue) - ((static_cast<int>(abs(readingValue) / 1000)) * 1000));
 			reading.status = STATUS_OK;
 		}
 		else{
@@ -37,7 +41,7 @@ SensorReading TempSensor::getDeviceReading()
 		reading.status = STATUS_WRONG_READING;
 	}
 
-	// cout << "TEMP SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
+	//cout << "TEMP SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
 	
 	return reading;
 }

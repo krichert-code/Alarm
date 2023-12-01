@@ -110,7 +110,7 @@ SensorReading CamSensor::getDeviceReading()
         reading.status = STATUS_GENERIC_ERR;
     }
 
-    //cout << "CAM SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
+    // cout << "CAM SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
     return reading;
 }
 
