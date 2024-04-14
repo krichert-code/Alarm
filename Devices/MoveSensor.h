@@ -12,6 +12,8 @@
 #include "CommonDefs.h"
 #include <wiringPi.h>
 #include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 using namespace std;
 
@@ -23,7 +25,7 @@ class MoveSensor : public DeviceInterface
 
 
 	public:
-		MoveSensor(string address);
+		MoveSensor(string address, shared_ptr<spdlog::logger> logger);
 		virtual ~MoveSensor() {}
 		SensorReading getDeviceReading() override;
 };

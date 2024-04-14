@@ -13,7 +13,8 @@
 #include "CommonDefs.h"
 #include <wiringPi.h>
 #include <iostream>
-
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 using namespace std;
 
 class SwitchSensor : public DeviceInterface
@@ -26,7 +27,7 @@ class SwitchSensor : public DeviceInterface
 
 
 	public:
-		SwitchSensor(string address);
+		SwitchSensor(string address, shared_ptr<spdlog::logger> logger);
 		virtual ~SwitchSensor() {}
 		SensorReading getDeviceReading() override;
 		void updateDeviceReading(int reading) override;

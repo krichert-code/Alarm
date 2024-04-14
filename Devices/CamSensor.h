@@ -11,6 +11,8 @@
 #include <DeviceInterface.h>
 #include "CommonDefs.h"
 #include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 using namespace std;
 
@@ -20,9 +22,10 @@ class CamSensor : public DeviceInterface
 		string deviceAddress;
 		ReadingType readingType;
 		static bool streamAvailable;
+		shared_ptr<spdlog::logger> logger;
 
 	public:
-		CamSensor(string address);
+		CamSensor(string address, shared_ptr<spdlog::logger> logger);
 		virtual ~CamSensor() {}
 		SensorReading getDeviceReading() override;
 		static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);

@@ -9,7 +9,7 @@
 
 
 
-MoveSensor::MoveSensor(string address)
+MoveSensor::MoveSensor(string address, shared_ptr<spdlog::logger> logger)
 {
     deviceAddress = stoi(address);
     readingType = READING_STATE;

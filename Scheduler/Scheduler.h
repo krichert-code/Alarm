@@ -17,6 +17,8 @@
 #include "array"
 #include "SensorEventsDatabase.h"
 #include "AlarmService.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 
 
@@ -27,7 +29,7 @@ class Scheduler
 	private:
 		static constexpr int maxSources = 2;
 		array<shared_ptr<DeviceSetupInterface>,maxSources> readingSources;
-		int  schedulerThreadFunction(SensorType sensorType);
+		int  schedulerThreadFunction(SensorType sensorType, shared_ptr<spdlog::logger> logger);
 		const int scanningTimer = 100;
 
 	public:
@@ -38,7 +40,7 @@ class Scheduler
 				}
 		){}
 
-		void operator()(int sensorType);
+		void operator()(int sensorType, shared_ptr<spdlog::logger> logger);
 };
 
 #endif /* SCHEDULER_H_ */

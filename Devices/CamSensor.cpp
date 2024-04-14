@@ -14,9 +14,10 @@
 #include <array>
 #include <curl/curl.h>
 
-CamSensor::CamSensor(string address)
+CamSensor::CamSensor(string address, shared_ptr<spdlog::logger> logger)
 {
     deviceAddress = address;
+    this->logger = logger;
     readingType = READING_STATE;
 }
 
@@ -82,6 +83,8 @@ SensorReading CamSensor::getDeviceReading()
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
+          logger->critical("CAM : Setup fails - wrong reading");
+          logger->flush();          
           reading.status = STATUS_READING_NOT_READY;
         }
 
@@ -90,6 +93,8 @@ SensorReading CamSensor::getDeviceReading()
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
+          logger->critical("CAM : No response - wrong reading");
+          logger->flush();
           reading.status = STATUS_READING_NOT_READY;
         }
 
@@ -101,12 +106,16 @@ SensorReading CamSensor::getDeviceReading()
       }
       else
       {
+          logger->critical("CAM : Cannot initialize CURL session");
+          logger->flush();
           reading.status = STATUS_GENERIC_ERR;
       }
       curl_global_cleanup();
     }
     else
     {
+        logger->critical("CAM : Cannot initialize CURL");
+        logger->flush();
         reading.status = STATUS_GENERIC_ERR;
     }
 
@@ -116,7 +125,7 @@ SensorReading CamSensor::getDeviceReading()
 
 size_t CamSensor::HeaderCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    string headerLine((char*)contents, size * nmemb);    
+    string headerLine((char*)contents, size * nmemb);
     if (headerLine.find("404 Stream Not Found") != string::npos)
         streamAvailable = false;
     return size * nmemb;

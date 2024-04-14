@@ -13,6 +13,9 @@
 #include "CommonDefs.h"
 #include "AlarmTriggerInterface.h"
 #include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 
 using namespace std;
 
@@ -24,7 +27,7 @@ class AlarmSensor : public DeviceInterface, public AlarmTriggerInterface
 
 
     public:
-		AlarmSensor(string address) : deviceAddress(address), readingType(READING_STATE) {}
+		AlarmSensor(string address, shared_ptr<spdlog::logger> logger) : deviceAddress(address), readingType(READING_STATE) {}
 
 		virtual ~AlarmSensor() {}
 

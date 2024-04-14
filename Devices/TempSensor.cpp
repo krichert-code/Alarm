@@ -46,7 +46,7 @@ SensorReading TempSensor::getDeviceReading()
 	return reading;
 }
 
-TempSensor::TempSensor(string address){
+TempSensor::TempSensor(string address, shared_ptr<spdlog::logger> logger){
 	deviceAddress = address;
 	reading.status = STATUS_READING_NOT_READY;
 }

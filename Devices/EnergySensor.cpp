@@ -81,7 +81,7 @@ SensorReading EnergySensor::getDeviceReading()
 	return reading;
 }
 
-EnergySensor::EnergySensor(string address)
+EnergySensor::EnergySensor(string address, shared_ptr<spdlog::logger> logger)
 {
 	// address template = " user:password:parameter@url"
 	user = address.substr(0, address.find(":"));

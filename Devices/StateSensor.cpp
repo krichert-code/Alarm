@@ -18,7 +18,7 @@
 
 
 
-StateSensor::StateSensor(string address)
+StateSensor::StateSensor(string address, shared_ptr<spdlog::logger> logger)
 {
     deviceAddress = stoi(address);
     readingType = READING_STATE;

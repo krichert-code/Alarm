@@ -8,7 +8,7 @@
 
 #include "SwitchSensor.h"
 
-SwitchSensor::SwitchSensor(string address)
+SwitchSensor::SwitchSensor(string address, shared_ptr<spdlog::logger> logger)
 {
     deviceAddress = stoi(address);
     readingType = READING_STATE;

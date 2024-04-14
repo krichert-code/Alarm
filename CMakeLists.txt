@@ -21,6 +21,8 @@ include_directories(DeviceEvents)
 include_directories(AlarmService)
 include_directories(RestService)
 include_directories(DeviceConfiguration)
+#spdlog library
+include_directories(spdlog/include)
 #code and header for library rapidxml
 include_directories(/usr/local/include/rapidxml)
 #header for pistache library
@@ -36,5 +38,6 @@ add_subdirectory(DeviceConfiguration)
 add_subdirectory(Devices)
 add_subdirectory(DeviceEvents)
 add_subdirectory(App)
+add_subdirectory(spdlog)
 
 

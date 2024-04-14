@@ -20,7 +20,7 @@ DevicesRegister::DevicesRegister()
 }
 
 
-void DevicesRegister::registerDevices()
+void DevicesRegister::registerDevices(SensorType sensorType, shared_ptr<spdlog::logger> logger)
 {
 	shared_ptr<DeviceInfoInterface> config = DevicesConfiguration::getInstance();
 	SensorParameters sensorConfiguration;
@@ -31,9 +31,9 @@ void DevicesRegister::registerDevices()
 		do
 		{
 			sensorConfiguration = any_cast<SensorParameters>(config->getData(deviceId));
-			if (true == sensorConfiguration.enabled)
+			if (true == sensorConfiguration.enabled && sensorConfiguration.sensorType == sensorType)
 			{
-				deviceRegister[deviceId] = deviceType[sensorConfiguration.sensorType](sensorConfiguration.sensorAddress);
+				deviceRegister[deviceId] = deviceType[sensorConfiguration.sensorType](sensorConfiguration.sensorAddress, logger);
 			}
 			deviceId++;
 		}
@@ -59,19 +59,19 @@ const vector<int> DevicesRegister::getRegistredDevicesId()
 
 const shared_ptr<DeviceInterface> DevicesRegister::getRegisteredDevice(const int deviceId)
 {
-	//todo: checki if it can throw exception if index is out of the range - catch it in scheduler
+	//todo: check if it can throw exception if index is out of the range - catch it in scheduler
 	return deviceRegister[deviceId];
 }
 
 
 constexpr int DevicesRegister::deviceTypes;
-array<function<shared_ptr<DeviceInterface>(string)>, DevicesRegister::deviceTypes> DevicesRegister::deviceType =
+array<function<shared_ptr<DeviceInterface>(string, shared_ptr<spdlog::logger>)>, DevicesRegister::deviceTypes> DevicesRegister::deviceType =
 {
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<MoveSensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<TempSensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<EnergySensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<StateSensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<SwitchSensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<CamSensor>(address); },
-		[](string address)->shared_ptr<DeviceInterface> { return make_shared<AlarmSensor>(address); }
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<MoveSensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<TempSensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<EnergySensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<StateSensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<SwitchSensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<CamSensor>(address, logger); },
+		[](string address, shared_ptr<spdlog::logger> logger)->shared_ptr<DeviceInterface> { return make_shared<AlarmSensor>(address, logger); }
 };

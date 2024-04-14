@@ -11,8 +11,8 @@
 #include <DeviceInterface.h>
 #include "CommonDefs.h"
 #include <iostream>
-#include <mutex>
-#include <thread>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 
 using namespace std;
@@ -27,7 +27,7 @@ class TempSensor : public DeviceInterface
 		const string reading_file = "/w1_slave";
 
     public:
-		TempSensor(string address);
+		TempSensor(string address, shared_ptr<spdlog::logger> logger);
 		SensorReading getDeviceReading() override;
 		virtual ~TempSensor() {}
 };

@@ -34,8 +34,8 @@
     <sensor name="Furtka" sensorType="4" threshold="6" scanningPeriod="1" address="21" enabled="1"/>
 
 <!- Move sensors based on camera-->
-    <sensor name="OgrodCam" sensorType="5" threshold="1" scanningPeriod="10" address="rtsp://0grOd2:Ha5lo2@192.168.1.148/live0" enabled="1"/>
-    <sensor name="SalonCam" sensorType="5" threshold="1" scanningPeriod="10" address="rtsp://Sal0n2:Ha5lo2@192.168.1.149/live0" enabled="1"/>
+    <sensor name="OgrodCam" sensorType="5" threshold="1" scanningPeriod="1" address="rtsp://0grOd2:Ha5lo2@192.168.1.148/live0" enabled="1"/>
+    <sensor name="SalonCam" sensorType="5" threshold="1" scanningPeriod="1" address="rtsp://Sal0n2:Ha5lo2@192.168.1.149/live0" enabled="1"/>
 
 <!- Temperature sensors -->
     <sensor name="TempSalon" sensorType="1" threshold="60" scanningPeriod="10"     address="28-0119543fc5ff" enabled="1"/>
@@ -49,9 +49,8 @@
     <sensor name="TempOgrod" sensorType="1" threshold="60" scanningPeriod="10"    address="28-00000e0a9d04" enabled="1"/>
 
 <!- Energy generator -->
-    <sensor name="PowerToday" sensorType="2" threshold="45" scanningPeriod="60" address="webdata_today_e@http://192.168.1.140/status.html" enabled="1"/>
-    <sensor name="PowerTotal" sensorType="2" threshold="5500" scanningPeriod="60" address="webdata_total_e@http://192.168.1.140/status.html" enabled="1"/>
-    <sensor name="PowerCurrent" sensorType="2" threshold="5250" scanningPeriod="60" address="webdata_now_p@http://192.168.1.140/status.html" enabled="1"/>
-
+    <sensor name="PowerToday" sensorType="2" threshold="45" scanningPeriod="60" address="admin:admin:webdata_today_e@http://192.168.1.140/status.html" enabled="1"/>
+    <sensor name="PowerTotal" sensorType="2" threshold="5500" scanningPeriod="60" address="admin:admin:webdata_total_e@http://192.168.1.140/status.html" enabled="1"/>
+    <sensor name="PowerCurrent" sensorType="2" threshold="5250" scanningPeriod="60" address="admin:admin:webdata_now_p@http://192.168.1.140/status.html" enabled="1"/>
 
 </sensors>

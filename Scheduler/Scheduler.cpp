@@ -10,33 +10,34 @@
 #include "DevicesConfiguration.h"
 #include "SensorEventsDatabase.h"
 
-
-int  Scheduler::schedulerThreadFunction(SensorType sensorType)
+int  Scheduler::schedulerThreadFunction(SensorType sensorType, shared_ptr<spdlog::logger> logger)
 {
-	int tenthOfmilisec = 0;
-	int scanningTime = 0;
+	unsigned int scanningTime = 0;
+	bool printDebug = false;
 	DevicesRegister devRegister;
 	shared_ptr<DeviceInfoInterface> deviceConfiguration = DevicesConfiguration::getInstance();
 	vector<int> devicesId;
 	int scanningPeriod = 0;
 	DeviceInfoData reading;
 
-	devRegister.registerDevices();
+	devRegister.registerDevices(sensorType, logger);
 	devicesId = devRegister.getRegistredDevicesId();
 
 	// setup consumers of readings
-	for (auto &deviceId : devicesId)
-	{
-		if (sensorType != any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).sensorType)
-				continue;
-
+	for (auto &deviceId : devicesId)	
 		for (auto &source : readingSources)
 			source->prepareDeviceInfoSetup(deviceId, devRegister.getRegisteredDevice(deviceId));
-	}
 
 	//start to read sensors
 	while(1)
 	{
+//debug:
+if ((scanningTime % (3600*12)) == 0) {
+logger->critical("DEBUG print for sensorType = {0:d} ", sensorType);
+logger->flush();
+printDebug = true;
+}
+
 		for (auto &deviceId : devicesId)
 		{
 			if (sensorType != any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).sensorType)
@@ -49,10 +50,13 @@ int  Scheduler::schedulerThreadFunction(SensorType sensorType)
 			catch(bad_any_cast &e)
 			{
 				scanningPeriod = 1;
-				//todo:wrong reading - log it
+				if (sensorType == CAMERA_SENSOR)
+				{
+					logger->critical("Wrong scaning period id = {0:d}", deviceId); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+					logger->flush();
+				}				
 			}
 
-			//if (0 == (tenthOfmilisec % scanningPeriod))
 			if (0 == (scanningTime % scanningPeriod))
 			{
 				reading = readingSources[0]->getData(deviceId);
@@ -67,24 +71,26 @@ int  Scheduler::schedulerThreadFunction(SensorType sensorType)
 				///todo:handle the status (may return value different then success)
 				//feed all connected sources
 				reading = devRegister.getRegisteredDevice(deviceId)->getDeviceReading();
+if (printDebug)
+{
+logger->critical("DEBUG print for sensorType = {0:d} sensoId = {1:d} readingValue = {2:d} readingStatus = {3:d}", sensorType, deviceId, any_cast<SensorReading>(reading).lastReadingValue, any_cast<SensorReading>(reading).status);
+logger->flush();
+}
 
 				for (auto &source : readingSources)
 					source->setData(deviceId, reading);
 			}
 		}
-	
-		// this_thread::sleep_for(chrono::milliseconds(scanningTimer));
-		// tenthOfmilisec = (tenthOfmilisec % 10);
-		// tenthOfmilisec++;
-		this_thread::sleep_for(chrono::milliseconds(1000));		
+		printDebug = false;
+		this_thread::sleep_for(chrono::milliseconds(1000));
 		scanningTime++;
 	}
 
 	return STATUS_OK;
 }
 
-void Scheduler::operator ()(int sensorType)
+void Scheduler::operator ()(int sensorType, shared_ptr<spdlog::logger> logger)
 {
-	schedulerThreadFunction(static_cast<SensorType>(sensorType));
+	schedulerThreadFunction(static_cast<SensorType>(sensorType), logger);
 	cout << "Scheduler : end thread" << sensorType << endl;
 }

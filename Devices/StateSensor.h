@@ -12,6 +12,8 @@
 #include "CommonDefs.h"
 #include <wiringPi.h>
 #include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 using namespace std;
 
@@ -23,7 +25,7 @@ class StateSensor : public DeviceInterface
 
 
 	public:
-		StateSensor(string address);
+		StateSensor(string address, shared_ptr<spdlog::logger> logger);
 		virtual ~StateSensor() {}
 		SensorReading getDeviceReading() override;
 		void updateDeviceReading(int reading) override;
