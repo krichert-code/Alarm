@@ -138,6 +138,10 @@ string RestApiService::generateErrorResponse(string sensorId, string message)
 	//prepare response
 	response = "<sensor>" + sensorId + "</sensor>";
 	response += "<error>" +message + "</error>";
+        response += "<available_commands>";
+	response += "<command>command=GetVersion</command>";
+	response += "<command>command=UpdateSensorState&sensorName=BramaGaraz&reading=0</command>";
+        response += "</available_commands>";
 	return response;
 }
 

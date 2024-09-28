@@ -21,7 +21,7 @@ class CamSensor : public DeviceInterface
 	private:
 		string deviceAddress;
 		ReadingType readingType;
-		static bool streamAvailable;
+		static int counter;
 		shared_ptr<spdlog::logger> logger;
 
 	public:

@@ -31,13 +31,6 @@ int  Scheduler::schedulerThreadFunction(SensorType sensorType, shared_ptr<spdlog
 	//start to read sensors
 	while(1)
 	{
-//debug:
-if ((scanningTime % (3600*12)) == 0) {
-logger->critical("DEBUG print for sensorType = {0:d} ", sensorType);
-logger->flush();
-printDebug = true;
-}
-
 		for (auto &deviceId : devicesId)
 		{
 			if (sensorType != any_cast<SensorParameters>(deviceConfiguration->getData(deviceId)).sensorType)
@@ -60,7 +53,7 @@ printDebug = true;
 			if (0 == (scanningTime % scanningPeriod))
 			{
 				reading = readingSources[0]->getData(deviceId);
-
+				try {
 				if (any_cast<DatabaseReadingEntry>(reading).setupDeviceWithNewReadingValue)
 				{
 					devRegister.getRegisteredDevice(deviceId)->updateDeviceReading(any_cast<DatabaseReadingEntry>(reading).newReadingValue);
@@ -71,14 +64,14 @@ printDebug = true;
 				///todo:handle the status (may return value different then success)
 				//feed all connected sources
 				reading = devRegister.getRegisteredDevice(deviceId)->getDeviceReading();
-if (printDebug)
-{
-logger->critical("DEBUG print for sensorType = {0:d} sensoId = {1:d} readingValue = {2:d} readingStatus = {3:d}", sensorType, deviceId, any_cast<SensorReading>(reading).lastReadingValue, any_cast<SensorReading>(reading).status);
-logger->flush();
-}
 
 				for (auto &source : readingSources)
 					source->setData(deviceId, reading);
+				}
+				catch(...) {
+					logger->critical("Caught exceptiion in scheduler thread sensorType = {0:d}", sensorType); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+					logger->flush();
+				}
 			}
 		}
 		printDebug = false;

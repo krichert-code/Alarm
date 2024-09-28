@@ -14,6 +14,11 @@
 #include <array>
 #include <curl/curl.h>
 
+struct USRData{
+    shared_ptr<spdlog::logger> logger;
+    bool streamAvailable;
+};
+
 CamSensor::CamSensor(string address, shared_ptr<spdlog::logger> logger)
 {
     deviceAddress = address;
@@ -21,47 +26,25 @@ CamSensor::CamSensor(string address, shared_ptr<spdlog::logger> logger)
     readingType = READING_STATE;
 }
 
-/*
-SensorReading CamSensor::getDeviceReading()
-{
-    SensorReading reading;
-//ffprobe -v quiet -print_format json -show_streams  -stimeout 10 rtsp://
-    string cmd = "ffprobe -hide_banner  -stimeout 8000 " + deviceAddress + " 2>&1";    
-    array<char, 128> buffer;
-    string result;
-
-    
-    unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
-    }
-
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-
-    reading.readingType = this->readingType;
-
-    if (result.find("404 Stream Not Found") == string::npos) reading.lastReadingValue = 1;
-        else reading.lastReadingValue = 0;
-	
-	reading.status = STATUS_OK;
-    
-	// cout << "CAM SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
-	return reading;
-}
-*/
 SensorReading CamSensor::getDeviceReading()
 {
     SensorReading reading;
     CURL *curl;
     CURLcode res;
+    struct USRData userParams;
 
-    streamAvailable = true;
     reading.readingType = this->readingType;
     reading.status = STATUS_OK;
     reading.lastReadingValue = 0;
 
+    userParams.streamAvailable = true;
+    userParams.logger = logger;
+
+if(counter > 600)
+{
+ logger->critical("CAM : Begin reading address = {0:s}", deviceAddress);
+ logger->flush();
+}
    /* initialize curl */
     res = curl_global_init(CURL_GLOBAL_ALL);
     if(res == CURLE_OK)
@@ -73,6 +56,7 @@ SensorReading CamSensor::getDeviceReading()
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
         curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, CamSensor::HeaderCallback);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &userParams);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CamSensor::WriteCallback);
         curl_easy_setopt(curl, CURLOPT_URL, deviceAddress.c_str());
 
@@ -98,11 +82,16 @@ SensorReading CamSensor::getDeviceReading()
           reading.status = STATUS_READING_NOT_READY;
         }
 
+if(counter > 600)
+{
+ logger->critical("CAM : Compleat reading address = {0:s} streamAvailable={1:d}\n-----------------\n", deviceAddress, userParams.streamAvailable);
+ logger->flush();
+}
         /* cleanup */
         curl_easy_cleanup(curl);
         curl = NULL;
 
-        if (streamAvailable) reading.lastReadingValue = 1;
+        if (userParams.streamAvailable) reading.lastReadingValue = 1;
       }
       else
       {
@@ -119,6 +108,8 @@ SensorReading CamSensor::getDeviceReading()
         reading.status = STATUS_GENERIC_ERR;
     }
 
+counter++;
+if (counter == 603) counter =0;
     // cout << "CAM SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
     return reading;
 }
@@ -126,8 +117,16 @@ SensorReading CamSensor::getDeviceReading()
 size_t CamSensor::HeaderCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     string headerLine((char*)contents, size * nmemb);
+    USRData *userParams = (USRData *)userp;
+
     if (headerLine.find("404 Stream Not Found") != string::npos)
-        streamAvailable = false;
+    {
+        userParams->streamAvailable = false;
+	if(counter > 600){
+            userParams->logger->critical("CAM : Stream not found :  {0:s}", headerLine);
+	    userParams->logger->flush();
+	}
+    }
     return size * nmemb;
 }
 
@@ -138,5 +137,4 @@ size_t CamSensor::WriteCallback(void *contents, size_t size, size_t nmemb, void 
     return size * nmemb;
 }
 
-
-bool CamSensor::streamAvailable = false;
+int CamSensor::counter = 0;
