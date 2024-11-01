@@ -40,11 +40,11 @@ SensorReading CamSensor::getDeviceReading()
     userParams.streamAvailable = true;
     userParams.logger = logger;
 
-if(counter > 600)
-{
- logger->critical("CAM : Begin reading address = {0:s}", deviceAddress);
- logger->flush();
-}
+//if(counter > 600)
+//{
+// logger->critical("CAM : Begin reading address = {0:s}", deviceAddress);
+// logger->flush();
+//}
    /* initialize curl */
     res = curl_global_init(CURL_GLOBAL_ALL);
     if(res == CURLE_OK)
@@ -55,6 +55,8 @@ if(counter > 600)
       {
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT , 6);
         curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, CamSensor::HeaderCallback);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &userParams);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CamSensor::WriteCallback);
@@ -64,29 +66,32 @@ if(counter > 600)
         //snprintf(uri, strlen(url) + 32, "%s", url);
         curl_easy_setopt(curl, CURLOPT_RTSP_STREAM_URI, deviceAddress.c_str());
         curl_easy_setopt(curl, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_OPTIONS);
+
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
-          logger->critical("CAM : Setup fails - wrong reading");
-          logger->flush();          
+          //logger->critical("CAM : Setup fails - wrong reading");
+          //logger->flush();          
           reading.status = STATUS_READING_NOT_READY;
         }
+	else
+	{
+    	    /* request session description and write response to sdp file */
+            curl_easy_setopt(curl, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_DESCRIBE);
+	    res = curl_easy_perform(curl);
+    	    if(res != CURLE_OK)
+            {
+	      //logger->critical("CAM : No response - wrong reading");
+    	      //logger->flush();
+              reading.status = STATUS_READING_NOT_READY;
+    	    }
+	}
 
-        /* request session description and write response to sdp file */
-        curl_easy_setopt(curl, CURLOPT_RTSP_REQUEST, (long)CURL_RTSPREQ_DESCRIBE);
-        res = curl_easy_perform(curl);
-        if(res != CURLE_OK)
-        {
-          logger->critical("CAM : No response - wrong reading");
-          logger->flush();
-          reading.status = STATUS_READING_NOT_READY;
-        }
-
-if(counter > 600)
-{
- logger->critical("CAM : Compleat reading address = {0:s} streamAvailable={1:d}\n-----------------\n", deviceAddress, userParams.streamAvailable);
- logger->flush();
-}
+//if(counter > 600)
+//{
+// logger->critical("CAM : Compleat reading address = {0:s} streamAvailable={1:d}\n-----------------\n", deviceAddress, userParams.streamAvailable);
+// logger->flush();
+//}
         /* cleanup */
         curl_easy_cleanup(curl);
         curl = NULL;
@@ -108,9 +113,9 @@ if(counter > 600)
         reading.status = STATUS_GENERIC_ERR;
     }
 
-counter++;
-if (counter == 603) counter =0;
-    // cout << "CAM SENSOR with address = " << deviceAddress << " Value = " << reading.lastReadingValue << endl;
+//counter++;
+//if (counter == 603) counter =0;
+
     return reading;
 }
 
