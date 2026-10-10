@@ -21,6 +21,8 @@ class MoveSensor : public DeviceInterface
 {
 	private:
 		int deviceAddress;
+		int asyncSensorReading;
+		bool asyncSensor;
 		ReadingType readingType;
 
 
@@ -28,6 +30,7 @@ class MoveSensor : public DeviceInterface
 		MoveSensor(string address, shared_ptr<spdlog::logger> logger);
 		virtual ~MoveSensor() {}
 		SensorReading getDeviceReading() override;
+		void updateDeviceReading(int reading) override;
 };
 
 

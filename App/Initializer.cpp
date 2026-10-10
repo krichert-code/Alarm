@@ -5,7 +5,6 @@
  *      Author: krichert
  */
 #include "Initializer.h"
-#include "MoveSensor.h"
 #include "Scheduler.h"
 #include "RestApiService.h"
 #include "pistache/endpoint.h"

@@ -9,6 +9,7 @@
 #define DEVICECONFIGURATION_XMLPARSER_H_
 
 #include <ParserInterface.h>
+#include <iostream>
 #include <rapidxml.hpp>
 #include "rapidxml_utils.hpp"
 

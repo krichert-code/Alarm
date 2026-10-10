@@ -17,8 +17,10 @@ int  Scheduler::schedulerThreadFunction(SensorType sensorType, shared_ptr<spdlog
 	DevicesRegister devRegister;
 	shared_ptr<DeviceInfoInterface> deviceConfiguration = DevicesConfiguration::getInstance();
 	vector<int> devicesId;
-	int scanningPeriod = 0;
+	int scanningPeriod = ASYNC_SENSOR;
 	DeviceInfoData reading;
+
+	std::cout << "Thread start deviceType = " << sensorType << std::endl;
 
 	devRegister.registerDevices(sensorType, logger);
 	devicesId = devRegister.getRegistredDevicesId();
@@ -42,34 +44,30 @@ int  Scheduler::schedulerThreadFunction(SensorType sensorType, shared_ptr<spdlog
 			}
 			catch(bad_any_cast &e)
 			{
-				scanningPeriod = 1;
-				if (sensorType == CAMERA_SENSOR)
-				{
-					logger->critical("Wrong scaning period id = {0:d}", deviceId); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
-					logger->flush();
-				}				
+				logger->critical("Wrong scaning period id = {0:d}", deviceId); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+				logger->flush();
 			}
 
-			if (0 == (scanningTime % scanningPeriod))
+			if (scanningPeriod == ASYNC_SENSOR || 0 == (scanningTime % scanningPeriod))
 			{
 				reading = readingSources[0]->getData(deviceId);
 				try {
-				if (any_cast<DatabaseReadingEntry>(reading).setupDeviceWithNewReadingValue)
-				{
-					devRegister.getRegisteredDevice(deviceId)->updateDeviceReading(any_cast<DatabaseReadingEntry>(reading).newReadingValue);
-					readingSources[0]->clearNewReadingValue(deviceId);
-				}
+					if (any_cast<DatabaseReadingEntry>(reading).setupDeviceWithNewReadingValue)
+					{
+						devRegister.getRegisteredDevice(deviceId)->updateDeviceReading(any_cast<DatabaseReadingEntry>(reading).newReadingValue);
+						readingSources[0]->clearNewReadingValue(deviceId);
+					}
 
-				//devRegister.getRegisteredDevice(deviceId)->updateDeviceReading(reading.);
-				///todo:handle the status (may return value different then success)
-				//feed all connected sources
-				reading = devRegister.getRegisteredDevice(deviceId)->getDeviceReading();
+					//devRegister.getRegisteredDevice(deviceId)->updateDeviceReading(reading.);
+					///todo:handle the status (may return value different then success)
+					//feed all connected sources
+					reading = devRegister.getRegisteredDevice(deviceId)->getDeviceReading();
 
-				for (auto &source : readingSources)
-					source->setData(deviceId, reading);
-				}
+					for (auto &source : readingSources)
+						source->setData(deviceId, reading);
+					}
 				catch(...) {
-					logger->critical("Caught exceptiion in scheduler thread sensorType = {0:d}", sensorType); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+					logger->critical("Caught exception in scheduler thread sensorType = {0:d}", sensorType); // ("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
 					logger->flush();
 				}
 			}

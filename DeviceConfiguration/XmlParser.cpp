@@ -27,14 +27,19 @@ SensorParameters XmlParser::readSensorParameters()
 			sensorData.sensorName = sensorsNode->first_attribute("name")->value();
 			sensorData.sensorType = static_cast<SensorType>(stoi(sensorsNode->first_attribute("sensorType")->value()));
 			sensorData.scanningPeriod = stoi(sensorsNode->first_attribute("scanningPeriod")->value());
-			sensorData.sensorAddress = sensorsNode->first_attribute("address")->value();
-			sensorData.enabled = static_cast<bool>(stoi(sensorsNode->first_attribute("scanningPeriod")->value()));
+
+			if (sensorData.scanningPeriod != ASYNC_SENSOR)
+				sensorData.sensorAddress = sensorsNode->first_attribute("address")->value();
+			else sensorData.sensorAddress = to_string(ASYNC_SENSOR);
+
+			sensorData.enabled = static_cast<bool>(stoi(sensorsNode->first_attribute("enabled")->value()));
 			sensorData.enableThresholdValue = stoi(sensorsNode->first_attribute("threshold")->value());
 			sensorData.status = STATUS_OK;
 		}
 		catch (invalid_argument& e)
 		{
 			//todo: logg it - wrong configuration
+			std::cerr << e.what();
 			sensorData.status = STATUS_XML_PARSE_ERROR;
 		}
 	}

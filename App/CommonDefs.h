@@ -71,7 +71,6 @@ typedef struct SensorParameters
     Status status;
 } SensorParameters;
 
-
 typedef struct SensorReading
 {
     int lastReadingValue;
@@ -101,5 +100,7 @@ typedef struct DatabaseReadingEntry
 typedef any DeviceInfoData;
 
 typedef map<int, map<string, string> > xmlResponse;
+
+constexpr int ASYNC_SENSOR = 0;
 
 #endif /* COMMONDEFS_H_ */
