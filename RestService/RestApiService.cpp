@@ -23,17 +23,23 @@ void RestApiService::onRequest(const Pistache::Http::Request& request, Pistache:
 	string cmd;
 
 	cmd = this->getCommand(request.resource());
-	apiParameters = this->getParameters(request.resource());
+	if (cmd.length() != 0) {
 
-	if (apiCommands.find(cmd) != apiCommands.end())
-	{
-		apiResponse = apiCommands[cmd](apiParameters);
-	}
-	else
-	{
+		apiParameters = this->getParameters(request.resource());
+
+		if (apiCommands.find(cmd) != apiCommands.end())
+		{
+			apiResponse = apiCommands[cmd](apiParameters);
+		}
+		else
+		{
+			apiResponse = generateErrorResponse("-1","Invalid command");
+		}
+	} else {
 		apiResponse = generateErrorResponse("-1","Invalid command");
 	}
 	response.send(Pistache::Http::Code::Ok, apiResponse);
+
 }
 
 string RestApiService::getCommand(const string inputQuery)
@@ -44,15 +50,17 @@ string RestApiService::getCommand(const string inputQuery)
 	int paramSeparatorIdx = -1;
 
 	cmdStringBegin = inputQuery.find(commandPattern);
-	cmdStringBegin+=commandPattern.length();
-	paramSeparatorIdx = inputQuery.find("&");
-	if (-1 == paramSeparatorIdx)
-	{
-		command = inputQuery.substr(cmdStringBegin);
-	}
-	else
-	{
-		command = inputQuery.substr(cmdStringBegin, paramSeparatorIdx - cmdStringBegin);
+	if (cmdStringBegin != std::string::npos) {	
+		cmdStringBegin+=commandPattern.length();
+		paramSeparatorIdx = inputQuery.find("&");
+		if (std::string::npos == paramSeparatorIdx)
+		{
+			command = inputQuery.substr(cmdStringBegin);
+		}
+		else
+		{
+			command = inputQuery.substr(cmdStringBegin, paramSeparatorIdx - cmdStringBegin);
+		}
 	}
 
 	return command;
@@ -138,16 +146,17 @@ string RestApiService::generateErrorResponse(string sensorId, string message)
 	//prepare response
 	response = "<sensor>" + sensorId + "</sensor>";
 	response += "<error>" +message + "</error>";
-        response += "<available_commands>";
-	response += "<command>command=GetVersion</command>";
-	response += "<command>command=UpdateSensorState&sensorName=BramaGaraz&reading=0</command>";
-        response += "</available_commands>";
+	response += "<available_commands>";
+	response += "<url>command=GetVersion</url>";
+	response += "<url>command=UpdateSensorState&sensorName=BramaGaraz&reading=0</url>";
+    response += "</available_commands>";
+
 	return response;
 }
 
 string RestApiService::getVersion(map<string,string> parameters)
 {
-	return "<version>1.0</version>";
+	return "<system>Alarm</system><version>1.0</version>";
 }
 
 string RestApiService::getReading(map<string,string> parameters)
@@ -216,6 +225,24 @@ string RestApiService::getConfig(map<string,string> parameters)
 	{
 		sensorId = stoi(parameters["id"]);
 		response = generateSingleElementResponse(deviceRegister.getConfigurationDeviceInfo(sensorId));
+	}
+	catch (invalid_argument& e)
+	{
+		response = generateErrorResponse(parameters["id"], "Invalid parameter");
+	}
+
+	return response;
+}
+
+string RestApiService::getConfigByName(map<string,string> parameters)
+{
+	string sensorName;
+	string response;
+
+	try
+	{
+		sensorName = parameters["sensorName"];
+		response = generateSingleElementResponse(deviceRegister.getConfigurationDeviceInfo(sensorName));
 	}
 	catch (invalid_argument& e)
 	{
@@ -298,9 +325,10 @@ string RestApiService::getStates(map<string,string> parameters)
 
 map<string,function<string(map<string,string>)>> RestApiService::apiCommands =
 {
-		{"GetVersion", getVersion},                //command=GetVersion
-		{"GetReading", getReading},
+		{"GetVersion", getVersion },               //command=GetVersion
+		{"GetReading", getReading },
 		{"GetConfig" , getConfig },
+		{"GetConfigByName" , getConfigByName },    //comand=GetConfigByName&sensorName=FurtkaKontraktron
 		{"EnableAlarm" , enableAlarm },
 		{"DisableAlarm" , disableAlarm },
 		{"UpdateSensorState" , updateSensorState }, //command=UpdateSensorState&sensorName=Zraszacze1&reading=0

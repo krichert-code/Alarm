@@ -26,6 +26,7 @@ class RestApiService: public Pistache::Http::Handler
 		static string getVersion(map<string,string> parameters);
 		static string getReading(map<string,string> parameters);
 		static string getConfig(map<string,string> parameters);
+		static string getConfigByName(map<string,string> parameters);
 		static string enableAlarm(map<string,string> parameters);
 		static string disableAlarm(map<string,string> parameters);
 		static string getPresence(map<string,string> parameters);

@@ -25,6 +25,7 @@ class DeviceInfoRegister
 	public:
 		DeviceInfoRegister();
 		xmlResponse getConfigurationDeviceInfo(int deviceId);
+		xmlResponse getConfigurationDeviceInfo(string sensorName);
 		xmlResponse getReadingDeviceInfo(int deviceId);
 		xmlResponse changeSensorReadingValue(string sensorName, const int reading);
 

@@ -41,6 +41,17 @@ typedef enum ReadingType
     READING_MAX
 } ReadingType;
 
+// Based on below mode setting, aync device (esp32) configure itself as required
+typedef enum ModeType
+{
+    SENSOR,
+    ASYNC_ACTIVE_MOVE_SENSOR,
+    ASYNC_ACTIVE_MOVE_SENSOR_WITH_TEMP_SENSOR,
+    ASYNC_DEEP_SLEEP_MOVE_SENSOR,
+    ASYNC_DEEP_SLEEP_MOVE_SENSOR_WITH_TEMP_SENSOR,
+    MODE_MAX
+} ModeType;
+
 typedef enum SensorType
 {
     MOVE_SENSOR,
@@ -69,6 +80,7 @@ typedef struct SensorParameters
     int enableThresholdValue;
     bool enabled;
     Status status;
+    int mode;
 } SensorParameters;
 
 typedef struct SensorReading

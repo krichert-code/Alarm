@@ -34,6 +34,11 @@ SensorParameters XmlParser::readSensorParameters()
 
 			sensorData.enabled = static_cast<bool>(stoi(sensorsNode->first_attribute("enabled")->value()));
 			sensorData.enableThresholdValue = stoi(sensorsNode->first_attribute("threshold")->value());
+			
+			if (sensorsNode->first_attribute("mode"))
+				sensorData.mode = stoi(sensorsNode->first_attribute("mode")->value());
+			else sensorData.mode = 0;
+
 			sensorData.status = STATUS_OK;
 		}
 		catch (invalid_argument& e)

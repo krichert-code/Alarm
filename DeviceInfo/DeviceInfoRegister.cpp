@@ -27,6 +27,8 @@ xmlResponse DeviceInfoRegister::changeSensorReadingValue(string sensorName, cons
 	int deviceId = 0;
 	SensorParameters config;
 
+	config.status = STATUS_OK;
+
 	//find sensorId for provided sensorName
 	while (config.status != STATUS_SENSOR_NOT_EXIST)
 	{
@@ -63,7 +65,48 @@ xmlResponse DeviceInfoRegister::getConfigurationDeviceInfo(int deviceId)
 	result[deviceId].insert((pair<string, string>("address", config.sensorAddress)));
 	result[deviceId].insert((pair<string, string>("sensorType", to_string(config.sensorType))));
 	result[deviceId].insert((pair<string, string>("scanningPeriod", to_string(config.scanningPeriod))));
+	result[deviceId].insert((pair<string, string>("mode", to_string(config.mode))));
 	result[deviceId].insert((pair<string, string>("status", to_string(config.status))));
+
+	return result;
+}
+
+xmlResponse DeviceInfoRegister::getConfigurationDeviceInfo(string sensorName)
+{
+	xmlResponse result;
+	int deviceId = 0;
+	SensorParameters config;
+
+	config.status = STATUS_OK;
+	
+	//find sensorId for provided sensorName
+	while (config.status != STATUS_SENSOR_NOT_EXIST)
+	{
+		config = any_cast<SensorParameters>(deviceInfoSource[0]->getData(deviceId));
+		if (config.sensorName.compare(sensorName) == 0)
+		{
+			break;
+		}
+		deviceId++;
+	}
+
+	if (config.status == STATUS_SENSOR_NOT_EXIST)
+	{
+		result[deviceId].insert((pair<string, string>("sensorName", sensorName)));
+		result[deviceId].insert((pair<string, string>("status", "ERROR")));
+	}
+	else
+	{
+		config = any_cast<SensorParameters>(deviceInfoSource[0]->getData(deviceId));
+
+		result[deviceId].insert((pair<string, string>("sensorName", config.sensorName)));
+		result[deviceId].insert((pair<string, string>("enable", to_string(static_cast<int>(config.enabled)))));
+		result[deviceId].insert((pair<string, string>("address", config.sensorAddress)));
+		result[deviceId].insert((pair<string, string>("sensorType", to_string(config.sensorType))));
+		result[deviceId].insert((pair<string, string>("scanningPeriod", to_string(config.scanningPeriod))));
+		result[deviceId].insert((pair<string, string>("mode", to_string(config.mode))));
+		result[deviceId].insert((pair<string, string>("status", to_string(config.status))));
+	}
 
 	return result;
 }
