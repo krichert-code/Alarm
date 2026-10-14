@@ -20,15 +20,19 @@ using namespace std;
 
 class TempSensor : public DeviceInterface
 {
-	private:
+    private:
 		string deviceAddress;
-		SensorReading reading;
+		ReadingType readingType;
 		const string devices_directory = "/sys/bus/w1/devices/";
 		const string reading_file = "/w1_slave";
+		int asyncSensorReading;
+		bool asyncSensor;
+
 
     public:
 		TempSensor(string address, shared_ptr<spdlog::logger> logger);
 		SensorReading getDeviceReading() override;
+		void updateDeviceReading(int reading) override;
 		virtual ~TempSensor() {}
 };
 

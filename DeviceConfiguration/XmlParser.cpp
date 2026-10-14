@@ -30,7 +30,7 @@ SensorParameters XmlParser::readSensorParameters()
 
 			if (sensorData.scanningPeriod != ASYNC_SENSOR)
 				sensorData.sensorAddress = sensorsNode->first_attribute("address")->value();
-			else sensorData.sensorAddress = to_string(ASYNC_SENSOR);
+			else sensorData.sensorAddress = "";
 
 			sensorData.enabled = static_cast<bool>(stoi(sensorsNode->first_attribute("enabled")->value()));
 			sensorData.enableThresholdValue = stoi(sensorsNode->first_attribute("threshold")->value());

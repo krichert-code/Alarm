@@ -15,15 +15,16 @@ MoveSensor::MoveSensor(string address, shared_ptr<spdlog::logger> logger)
 	try {
 		asyncSensor = false;
 		readingType = READING_STATE;
-		deviceAddress = stoi(address);
-		if (deviceAddress != ASYNC_SENSOR) {
+		if (address.size() > ASYNC_SENSOR) {
+			deviceAddress = stoi(address);
 			wiringPiSetup();
 			pinMode(deviceAddress, INPUT);
 			pullUpDnControl (deviceAddress, PUD_UP);
 		}
-		else 
+		else
 		{
-			// -1 means not address provided (common for async sensor - reading is push by sensor, no need to poll data from device)
+
+			// no address provided (common for async sensor - reading is push by sensor, no need to poll data from device)
 			asyncSensor = true;
 			asyncSensorReading = 0;
 		}
